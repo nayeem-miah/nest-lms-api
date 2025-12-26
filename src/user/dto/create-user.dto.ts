@@ -1,0 +1,33 @@
+import { IsArray, IsBoolean, IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, MaxLength, MinLength } from "class-validator";
+import { UserRole } from "../user.types";
+
+export class CreateUserDto {
+    @IsNotEmpty()
+    @IsString()
+    name: string;
+
+    @IsNotEmpty()
+    @IsEmail()
+    email: string;
+
+    @IsNotEmpty()
+    @MinLength(6)
+    @MaxLength(20)
+    password: string;
+
+    @IsOptional()
+    @IsEnum(UserRole)
+    role?: UserRole
+
+    @IsOptional()
+    @IsString()
+    profilePhoto?: string;
+
+    @IsOptional()
+    @IsArray()
+    devices?: string[];
+
+    @IsOptional()
+    @IsBoolean()
+    isActive?: boolean;
+}

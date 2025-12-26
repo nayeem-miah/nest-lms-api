@@ -7,6 +7,7 @@ async function bootstrap() {
 
   const PORT = Number(process.env.PORT) || 5000;
 
+  app.setGlobalPrefix('api/v1');
   app.useGlobalFilters(new GlobalExceptionFilter());
 
   await app.listen(PORT);
