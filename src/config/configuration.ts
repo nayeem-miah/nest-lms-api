@@ -22,7 +22,8 @@ export default () => ({
     jwt: {
         accessTokenSecret: process.env.JWT_ACCESS_TOKEN_SECRET,
         refreshTokenSecret: process.env.JWT_REFRESH_TOKEN_SECRET,
-        expiresIn: process.env.JWT_EXPIRE_IN || '7d',
+        expiresInAccess_token: process.env.JWT_EXPIRE_IN_ACCESS_TOKEN || '7d',
+        expireInRefreshToken: process.env.JWT_EXPIRE_IN_REFRESH_TOKEN || '30d',
         resetPassSecret: process.env.RESET_PASSWORD_SECRET,
         resetPassExpiresIn: process.env.RESET_PASS_TOKEN_EXPIRE_IN || '10m',
     },

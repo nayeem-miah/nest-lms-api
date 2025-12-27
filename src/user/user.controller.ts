@@ -1,9 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Res } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Res, UseGuards, Req, Request } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { sendResponse } from 'src/common/utils/sendResponse';
 import type { Response } from 'express';
+import { AuthGuard } from 'src/auth/auth.guard';
+import { Roles } from 'src/auth/roles.decorator';
+import { UserRole } from './user.types';
+import { RolesGuard } from 'src/auth/roles.guard';
 
 @Controller('/users')
 export class UserController {
@@ -25,6 +29,7 @@ export class UserController {
 
   }
 
+
   @Get()
   async findAll(@Res() res: Response) {
     const result = await this.userService.findAll();
@@ -36,6 +41,21 @@ export class UserController {
       data: result
     })
   }
+
+  @Get('me')
+  @UseGuards(AuthGuard)
+  async me(@Request() req, @Res() res: Response) {
+    const { sub } = req.user;
+    const user = await this.userService.me(sub);
+
+    sendResponse(res, {
+      statusCode: 200,
+      success: true,
+      message: 'User fetched successfully',
+      data: user
+    })
+  }
+
 
   @Get(':id')
   async findOne(@Param('id') id: string, @Res() res: Response) {

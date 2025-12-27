@@ -23,8 +23,7 @@ export class User {
     email: string;
 
     @Prop({
-        required: true,
-        select: false,
+        required: true
     })
     password: string;
 
