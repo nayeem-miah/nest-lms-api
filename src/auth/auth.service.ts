@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from 'src/user/user.service';
@@ -89,4 +89,42 @@ export class AuthService {
     };
   }
 
+
+  async changePassword(
+    userId: string,
+    { oldPassword,
+      newPassword
+    }:
+      {
+        oldPassword: string;
+        newPassword: string;
+      },
+  ) {
+    const user = await this.UserModule
+      .findById(userId)
+      .select('+password');
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (!user.password) {
+      throw new BadRequestException(
+        'Password change not allowed for Google login accounts',
+      );
+    }
+
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+
+    if (!isMatch) {
+      throw new BadRequestException('Old password is incorrect');
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    user.password = hashedPassword;
+    const result = await user.save();
+
+    return result;
+  }
 }

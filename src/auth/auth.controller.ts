@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Post, Req, Request, Res, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { CreateAuthDto } from './dto/create-auth.dto';
+import { ChangePasswordDto, CreateAuthDto } from './dto/create-auth.dto';
 import type { Response } from 'express';
 import { sendResponse } from '../common/utils/sendResponse';
 import { AuthGuard } from './auth.guard';
@@ -69,6 +69,7 @@ export class AuthController {
   // STEP 1: Redirect to Google
   @Get('google')
   @UseGuards(GoogleAuthGuard)
+
   async googleAuth() {
     // redirect handled by passport
   }
@@ -83,5 +84,28 @@ export class AuthController {
     res.redirect(
       `http://localhost:3000/login-success?token=${tokens.accessToken}`,
     );
+  }
+
+
+  // change password
+  @Post('change-password')
+  @UseGuards(AuthGuard)
+  async changePassword(
+    @Req() req: any,
+    @Res() res: Response,
+    @Body() dto: ChangePasswordDto,
+  ) {
+    const { sub } = req.user
+    const result = await this.authService.changePassword(
+      sub,
+      dto,
+    );
+
+    sendResponse(res, {
+      statusCode: 200,
+      success: true,
+      message: 'Password changed successfully',
+      data: result
+    })
   }
 }
