@@ -19,6 +19,12 @@ export default () => ({
         apiSecret: process.env.CLOUDINARY_API_SECRET,
     },
 
+    google: {
+        clientId: process.env.GOOGLE_CLIENT_ID,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+        callbackUrl: process.env.GOOGLE_CALLBACK_URL,
+    },
+
     jwt: {
         accessTokenSecret: process.env.JWT_ACCESS_TOKEN_SECRET,
         refreshTokenSecret: process.env.JWT_REFRESH_TOKEN_SECRET,

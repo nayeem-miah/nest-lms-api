@@ -1,9 +1,10 @@
-import { Body, Controller, Post, Request, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, Request, Res, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import type { Response } from 'express';
 import { sendResponse } from '../common/utils/sendResponse';
 import { AuthGuard } from './auth.guard';
+import { GoogleAuthGuard } from './guards/google-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -62,5 +63,25 @@ export class AuthController {
       message: 'User logged out successfully',
       data: result
     })
+  }
+
+  // * google login
+  // STEP 1: Redirect to Google
+  @Get('google')
+  @UseGuards(GoogleAuthGuard)
+  async googleAuth() {
+    // redirect handled by passport
+  }
+
+  // STEP 2: Google Callback
+  @Get('google/callback')
+  @UseGuards(GoogleAuthGuard)
+  async googleCallback(@Req() req, @Res() res) {
+    const tokens = await this.authService.googleLogin(req.user);
+
+
+    res.redirect(
+      `http://localhost:3000/login-success?token=${tokens.accessToken}`,
+    );
   }
 }

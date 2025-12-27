@@ -10,10 +10,10 @@ export class CreateUserDto {
     @IsEmail()
     email: string;
 
-    @IsNotEmpty()
     @MinLength(6)
     @MaxLength(20)
-    password: string;
+    @IsOptional()
+    password?: string;
 
     @IsOptional()
     @IsEnum(UserRole)

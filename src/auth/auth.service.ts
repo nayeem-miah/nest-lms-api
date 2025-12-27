@@ -24,7 +24,7 @@ export class AuthService {
       throw new BadRequestException('Invalid credentials');
     }
 
-    const isMatch = await bcrypt.compare(createAuthDto.password, user.password);
+    const isMatch = await bcrypt.compare(createAuthDto.password, user.password as string);
 
     if (!isMatch) {
       throw new BadRequestException('Invalid credentials');
@@ -56,4 +56,37 @@ export class AuthService {
     await this.UserService.removeDevice(userId, deviceId);
     return { message: 'Logged out successfully' };
   }
+
+
+  // * google login implement
+  async googleLogin(googleUser: any) {
+    const { email, name, profilePhoto } = googleUser;
+
+
+    let user = await this.UserModule.findOne({ email });
+
+    if (!user) {
+      user = await this.UserModule.create({
+        email,
+        name,
+        profilePhoto
+      });
+    }
+
+
+    // device limit
+    await this.UserService.addDevice(user._id.toString(), googleUser.deviceId);
+
+    const payload = {
+      sub: user?._id.toString(),
+      email: user?.email,
+      role: user?.role,
+    };
+
+    return {
+      accessToken: this.jwtService.sign(payload, { expiresIn: '15m' }),
+      refreshToken: this.jwtService.sign(payload, { expiresIn: '7d' }),
+    };
+  }
+
 }

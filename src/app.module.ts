@@ -8,6 +8,7 @@ import { UserModule } from './user/user.module';
 import configuration from './config/configuration';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './auth/auth.module';
+import { CourseModule } from './course/course.module';
 
 @Module({
   imports: [
@@ -18,7 +19,8 @@ import { AuthModule } from './auth/auth.module';
     }),
     UserModule,
     MongooseModule.forRoot(configuration().database.url as string),
-    AuthModule
+    AuthModule,
+    CourseModule
   ],
   controllers: [AppController],
   providers: [AppService],

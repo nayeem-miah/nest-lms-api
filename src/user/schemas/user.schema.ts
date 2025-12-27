@@ -23,9 +23,9 @@ export class User {
     email: string;
 
     @Prop({
-        required: true
+        required: false
     })
-    password: string;
+    password?: string;
 
     @Prop({
         type: String,
@@ -34,7 +34,7 @@ export class User {
     })
     role: UserRole;
 
-    @Prop({ default: null })
+    @Prop({ default: 'https://i.ibb.co.com/q2gwGfV/356306451-54b19ada-d53e-4ee9-8882-9dfed1bf1396.jpg' })
     profilePhoto?: string;
 
     @Prop({
