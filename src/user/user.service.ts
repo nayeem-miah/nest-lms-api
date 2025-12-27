@@ -7,6 +7,7 @@ import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import configuration from 'src/config/configuration';
 import { UserRole } from './user.types';
+import cloudinary from 'src/config/cloudinary.config';
 @Injectable()
 export class UserService {
   constructor(@InjectModel(User.name) private userModel: Model<User>) { }
@@ -43,10 +44,43 @@ export class UserService {
     return await this.userModel.findById(id);
   }
 
-  // ! task file upload update user
-  update(id: string, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async updateProfile(
+    userId: string,
+    payload: UpdateUserDto,
+    file?: Express.Multer.File,
+  ) {
+    const user = await this.userModel.findById(userId);
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (payload.name) {
+      user.name = payload.name;
+    }
+
+    if (file && file.path) {
+      if (user.profilePhoto) {
+        try {
+          const publicId = user.profilePhoto
+            .split('/')
+            .slice(-2)
+            .join('/')
+            .split('.')[0];
+
+          await cloudinary.uploader.destroy(publicId);
+        } catch (error) {
+          console.error('Error deleting old image:', error);
+        }
+      }
+
+      user.profilePhoto = file.path;
+    }
+
+    await user.save();
+    return user;
   }
+
 
   async remove(id: string) {
     return await this.userModel.findByIdAndDelete(id);

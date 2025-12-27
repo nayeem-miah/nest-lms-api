@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Res, UseGuards, Req, Request } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Res, UseGuards, Req, Request, UseInterceptors, UploadedFile, FileTypeValidator, ParseFilePipe } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -8,6 +8,9 @@ import { AuthGuard } from 'src/auth/auth.guard';
 import { Roles } from 'src/auth/roles.decorator';
 import { UserRole } from './user.types';
 import { RolesGuard } from 'src/auth/roles.guard';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { cloudinaryStorage } from 'src/common/utils/cloudinary.storage';
+import configuration from 'src/config/configuration';
 
 @Controller('/users')
 export class UserController {
@@ -69,10 +72,34 @@ export class UserController {
     })
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(id, updateUserDto);
+  @Patch('update-profile')
+  @UseGuards(AuthGuard)
+  @UseInterceptors(
+    FileInterceptor('profilePhoto', {
+      storage: cloudinaryStorage,
+      limits: { fileSize: 2 * 1024 * 1024 },
+    }),
+  )
+
+  async updateProfile(
+    @Req() req: any,
+    @Body() body: UpdateUserDto,
+    @UploadedFile() file?: Express.Multer.File,
+  ) {
+    const user = await this.userService.updateProfile(
+      req.user.sub,
+      body,
+      file,
+    );
+
+    return sendResponse(req.res, {
+      statusCode: 200,
+      success: true,
+      message: 'User updated successfully',
+      data: user
+    });
   }
+
 
   @Delete(':id')
   async remove(@Param('id') id: string, @Res() res: Response) {

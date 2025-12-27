@@ -50,3 +50,4 @@ export default () => ({
 
     resetPassLink: process.env.RESET_PASS_LINK,
 });
+
