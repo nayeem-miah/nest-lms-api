@@ -7,6 +7,9 @@ import cloudinary from 'src/config/cloudinary.config';
 export class CloudinaryService {
     // Delete file
     async deleteFile(publicId: string): Promise<any> {
+        if (!publicId || publicId.trim() === '') {
+            throw new Error('publicId is required and cannot be empty');
+        }
         try {
             return await cloudinary.uploader.destroy(publicId);
         } catch (error) {
@@ -14,7 +17,6 @@ export class CloudinaryService {
             throw error;
         }
     }
-
     //Delete video specifically
     async deleteVideo(publicId: string): Promise<any> {
         try {

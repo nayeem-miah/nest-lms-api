@@ -31,10 +31,10 @@ export class Course {
     @Prop({ default: false })
     isPublished: boolean;
 
-    @Prop({ default: 0 })
+    @Prop({ default: 0, min: 0, max: 5 })
     ratingAvg: number;
 
-    @Prop({ default: 0 })
+    @Prop({ default: 0, min: 0 })
     totalEnrollments: number;
 }
 

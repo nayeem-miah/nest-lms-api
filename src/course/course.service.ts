@@ -219,7 +219,8 @@ export class CoursesService {
     if (!course) {
       throw new NotFoundException('Course not found');
     }
-
+    console.log(userId)
+    console.log(course.instructorId)
     if (userRole !== UserRole.ADMIN && course.instructorId.toString() !== userId) {
       throw new ForbiddenException(
         'You can only publish/unpublish your own courses',

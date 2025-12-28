@@ -201,7 +201,9 @@ export class CoursesController {
     sendResponse(res, {
       statusCode: 200,
       success: true,
-      message: 'Course published successfully',
+      message: result.isPublished
+        ? 'Course published successfully'
+        : 'Course unpublished successfully',
       data: result
     })
   }
