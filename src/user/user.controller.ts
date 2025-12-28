@@ -6,11 +6,11 @@ import { sendResponse } from 'src/common/utils/sendResponse';
 import type { Response } from 'express';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { Roles } from 'src/auth/roles.decorator';
-import { UserRole } from './user.types';
+import { UserRole } from '../enums/user.types';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { cloudinaryStorage } from 'src/common/utils/cloudinary.storage';
 import configuration from 'src/config/configuration';
+import { profileStorage } from 'src/common/utils/cloudinary.storage';
 
 @Controller('/users')
 export class UserController {
@@ -76,7 +76,7 @@ export class UserController {
   @UseGuards(AuthGuard)
   @UseInterceptors(
     FileInterceptor('profilePhoto', {
-      storage: cloudinaryStorage,
+      storage: profileStorage,
       limits: { fileSize: 2 * 1024 * 1024 },
     }),
   )

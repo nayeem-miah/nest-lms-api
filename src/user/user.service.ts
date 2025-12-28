@@ -6,7 +6,7 @@ import { User } from './schemas/user.schema';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import configuration from 'src/config/configuration';
-import { UserRole } from './user.types';
+import { UserRole } from '../enums/user.types';
 import cloudinary from 'src/config/cloudinary.config';
 @Injectable()
 export class UserService {

@@ -1,13 +1,32 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { GlobalExceptionFilter } from './common/filters/http-exception.filter';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   const PORT = Number(process.env.PORT) || 5000;
 
+  app.enableCors({
+    origin: [
+      'http://localhost:3000',
+      'http://localhost:5173',
+      // 'https://your-frontend.vercel.app',
+    ],
+    credentials: true,
+  });
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+    }),
+  );
+
   app.setGlobalPrefix('api/v1');
+
   app.useGlobalFilters(new GlobalExceptionFilter());
 
   await app.listen(PORT);
