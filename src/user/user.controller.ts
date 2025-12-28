@@ -131,4 +131,33 @@ export class UserController {
       data: result
     })
   }
+
+  @Patch('/update-status/:id')
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  async updateStatus(@Param('id') id: string, @Res() res: Response, @Req() req: any) {
+    const result = await this.userService.updateStatus(id);
+
+    sendResponse(res, {
+      statusCode: 200,
+      success: true,
+      message: 'User role updated successfully',
+      data: result
+    })
+  }
+
+
+  @Patch('/update-role/:id')
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  async updateRole(@Param('id') id: string, @Res() res: Response, @Req() req: any) {
+    const result = await this.userService.updateRole(id);
+
+    sendResponse(res, {
+      statusCode: 200,
+      success: true,
+      message: 'User role updated successfully',
+      data: result
+    })
+  }
 }

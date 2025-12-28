@@ -18,6 +18,16 @@ export class UserService {
       throw new BadRequestException('User already exists with this email');
     }
 
+    if (createUserDto.role === UserRole.ADMIN) {
+      if (configuration().admin.email !== createUserDto.email) {
+        throw new ForbiddenException('Only admin can create admin');
+      }
+    }
+
+    if (!createUserDto.password) {
+      throw new BadRequestException('Password is required');
+    }
+
     const hashPassword = await bcrypt.hash(createUserDto.password as string, configuration().bcrypt.saltRounds);
 
     const user = await this.userModel.create({
@@ -144,5 +154,36 @@ export class UserService {
     createUserDto.role = UserRole.ADMIN;
 
     return await this.userModel.create(createUserDto);
-  }
+  };
+
+  // user block and unblock
+  async updateStatus(userId: string) {
+    const user = await this.userModel.findById(userId);
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    user.isActive = !user.isActive;
+
+    const updateUser = await this.userModel.findByIdAndUpdate(userId, user, { new: true });
+
+    return updateUser;
+  };
+
+
+  // update role 
+  async updateRole(userId: string) {
+    const user = await this.userModel.findById(userId);
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    user.role = UserRole.ADMIN;
+
+    const updateUser = await this.userModel.findByIdAndUpdate(userId, user, { new: true });
+
+    return updateUser;
+  };
 }
