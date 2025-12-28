@@ -130,4 +130,19 @@ export class UserService {
   }
 
 
+  async seedAdmin(createUserDto: CreateUserDto) {
+
+    const exitsUser = await this.userModel.findOne({ email: createUserDto.email });
+
+    if (exitsUser) {
+      throw new BadRequestException('User already exists with this email');
+    }
+
+    const hashPassword = await bcrypt.hash(createUserDto.password as string, configuration().bcrypt.saltRounds);
+
+    createUserDto.password = hashPassword;
+    createUserDto.role = UserRole.ADMIN;
+
+    return await this.userModel.create(createUserDto);
+  }
 }

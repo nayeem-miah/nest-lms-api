@@ -112,4 +112,23 @@ export class UserController {
       data: result
     })
   }
+
+  @Post('/seed-admin')
+  async seedAdmins(@Res() res: Response) {
+    const email = configuration().admin.email as string;
+    const password = configuration().admin.password as string;
+    const role = UserRole.ADMIN;
+    const name = 'Admin';
+
+    const dto = { email, password, role, name };
+
+    const result = await this.userService.seedAdmin(dto);
+
+    sendResponse(res, {
+      statusCode: 200,
+      success: true,
+      message: 'Admins seeded successfully',
+      data: result
+    })
+  }
 }

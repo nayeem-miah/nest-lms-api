@@ -49,5 +49,10 @@ export default () => ({
     },
 
     resetPassLink: process.env.RESET_PASS_LINK,
+
+    admin: {
+        email: process.env.ADMIN_EMAIL,
+        password: process.env.ADMIN_PASSWORD
+    }
 });
 
