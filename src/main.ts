@@ -2,11 +2,22 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { GlobalExceptionFilter } from './common/filters/http-exception.filter';
 import { ValidationPipe } from '@nestjs/common';
+import * as bodyParser from 'body-parser';
+
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   const PORT = Number(process.env.PORT) || 5000;
+
+
+  app.use(
+    '/api/v1/payments/stripe/webhook',
+    bodyParser.raw({ type: 'application/json' }),
+  );
+
+  app.use(bodyParser.json());
+
 
   app.enableCors({
     origin: [
