@@ -8,6 +8,7 @@ import * as bcrypt from 'bcrypt';
 import configuration from 'src/config/configuration';
 import { UserRole } from '../enums/user.types';
 import cloudinary from 'src/config/cloudinary.config';
+import { QueryUserDto } from './dto/QueryUserDto';
 @Injectable()
 export class UserService {
   constructor(@InjectModel(User.name) private userModel: Model<User>) { }
@@ -42,8 +43,57 @@ export class UserService {
     return user;
   }
 
-  async findAll() {
-    return await this.userModel.find();
+  async findAll(queryDto: QueryUserDto) {
+    const {
+      search,
+      role,
+      isActive,
+      page = 1,
+      limit = 10,
+    } = queryDto;
+
+    const filter: any = {};
+
+    //  Search by name or email
+    if (search) {
+      filter.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } },
+      ];
+    }
+
+    // Role filter
+    if (role) {
+      filter.role = role;
+    }
+
+    //  Active / Inactive filter
+    if (isActive !== undefined) {
+      filter.isActive = isActive;
+    }
+
+    const skip = (page - 1) * limit;
+
+    const [users, total] = await Promise.all([
+      this.userModel
+        .find(filter)
+        .select('-password')
+        .skip(skip)
+        .limit(limit)
+        .sort({ createdAt: -1 })
+        .exec(),
+      this.userModel.countDocuments(filter),
+    ]);
+
+    return {
+      data: users,
+      meta: {
+        total,
+        page: Number(page),
+        limit: Number(limit),
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
 
   async me(_id: string) {

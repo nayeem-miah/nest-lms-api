@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Res, UseGuards, Req, Request, UseInterceptors, UploadedFile, FileTypeValidator, ParseFilePipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Res, UseGuards, Req, Request, UseInterceptors, UploadedFile, FileTypeValidator, ParseFilePipe, Query } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -11,6 +11,7 @@ import { RolesGuard } from 'src/auth/roles.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import configuration from 'src/config/configuration';
 import { profileStorage } from 'src/common/utils/cloudinary.storage';
+import { QueryUserDto } from './dto/QueryUserDto';
 
 @Controller('/users')
 export class UserController {
@@ -34,14 +35,18 @@ export class UserController {
 
 
   @Get()
-  async findAll(@Res() res: Response) {
-    const result = await this.userService.findAll();
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  async findAll(@Query() queryUserDto: QueryUserDto, @Res() res: any) {
+    const result = await this.userService.findAll(queryUserDto);
 
     sendResponse(res, {
       statusCode: 200,
       success: true,
       message: 'Users fetched successfully',
-      data: result
+      data: result.data,
+      meta: result.meta
+
     })
   }
 

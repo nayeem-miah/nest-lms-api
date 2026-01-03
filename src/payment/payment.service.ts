@@ -9,6 +9,7 @@ import Stripe from 'stripe';
 import configuration from 'src/config/configuration';
 import { stripe } from 'src/common/utils/stripe';
 import { EnrollmentService } from '../enrollment/enrollment.service';
+import { QueryPaymentDto } from './dto/QueryPaymentDto';
 
 
 @Injectable()
@@ -184,6 +185,72 @@ export class PaymentService {
   async getUserPayments(userId: string) {
     return this.paymentModel
       .find({ userId: new Types.ObjectId(userId) })
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .populate({
+        path: 'userId',
+        select: 'name email profilePhoto',
+      })
+      .populate({
+        path: 'courseId',
+        select: 'title  category thumbnail level ratingAvg totalEnrollments',
+      })
+      .select('-__v');
   }
+
+  async getAllPayments(queryDto: QueryPaymentDto) {
+    const {
+      search,
+      status,
+      currency,
+      userId,
+      courseId,
+      page = 1,
+      limit = 10,
+    } = queryDto;
+
+    const filter: any = {};
+
+    //  Basic filters
+    if (status) filter.status = status;
+    if (currency) filter.currency = currency;
+    if (userId) filter.userId = userId;
+    if (courseId) filter.courseId = courseId;
+
+    //  Search (transactionId only – fast & safe)
+    if (search) {
+      filter.transactionId = { $regex: search, $options: 'i' };
+    }
+
+    const skip = (page - 1) * limit;
+
+    const [payments, total] = await Promise.all([
+      this.paymentModel
+        .find(filter)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .populate({
+          path: 'userId',
+          select: 'name email profilePhoto',
+        })
+        .populate({
+          path: 'courseId',
+          select: 'title category price thumbnail level ratingAvg totalEnrollments',
+        })
+        .select('-__v')
+        .exec(),
+      this.paymentModel.countDocuments(filter),
+    ]);
+
+    return {
+      data: payments,
+      meta: {
+        total,
+        page: Number(page),
+        limit: Number(limit),
+        totalPages: Math.ceil(total / limit),
+      },
+    };
+  }
+
 }
