@@ -34,6 +34,9 @@ export class Payment {
 
     @Prop()
     invoiceUrl?: string;
+    @Prop()
+
+    invoiceNumber?: string;
 }
 
 export const PaymentSchema = SchemaFactory.createForClass(Payment);

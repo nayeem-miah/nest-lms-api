@@ -124,6 +124,9 @@ export class PaymentService {
         payment.userId.toString(),
         payment.courseId.toString(),
       );
+
+      // create invoice url 
+
     }
     return { received: true };
   }
