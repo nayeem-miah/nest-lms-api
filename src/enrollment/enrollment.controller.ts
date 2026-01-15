@@ -25,6 +25,7 @@ export class EnrollmentController {
   @Post(':courseId')
   @Roles(UserRole.STUDENT)
   enrollCourse(@Req() req, @Param('courseId') courseId: string) {
+    console.log({ courseId });
     return this.enrollmentService.enrollCourse(
       req.user.sub,
       courseId,

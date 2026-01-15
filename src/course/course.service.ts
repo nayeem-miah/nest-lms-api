@@ -85,6 +85,45 @@ export class CoursesService {
       }
     };
   }
+  async findAllCoursesByAdmin(queryDto: QueryCourseDto) {
+    const { search, category, page = 1, limit = 10 } = queryDto;
+
+    const filter: any = {};
+
+    if (search) {
+      filter.$or = [
+        { title: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } },
+      ];
+    }
+
+    if (category) {
+      filter.category = category;
+    }
+
+    const skip = (page - 1) * limit;
+
+    const [courses, total] = await Promise.all([
+      this.courseModel
+        .find(filter)
+        .populate('instructorId', 'name email')
+        .skip(skip)
+        .limit(limit)
+        .sort({ createdAt: -1 })
+        .exec(),
+      this.courseModel.countDocuments(filter),
+    ]);
+
+
+    return {
+      data: courses,
+      meta: {
+        total,
+        page: Number(page),
+        totalPages: Math.ceil(total / limit),
+      }
+    };
+  }
 
 
   async findOne(id: string): Promise<Course> {

@@ -28,6 +28,7 @@ export class EnrollmentService {
 
 
   async enrollCourse(userId: string, courseId: string) {
+    console.log({ userId, courseId });
     const course = await this.coursesService.findOne(courseId);
     if (!course || !course.isPublished) {
       throw new NotFoundException('Course not available');

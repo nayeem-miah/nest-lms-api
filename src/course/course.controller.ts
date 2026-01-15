@@ -90,6 +90,21 @@ export class CoursesController {
     })
   }
 
+  @Get('admin')
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  async findAllCoursesByAdmin(@Query() queryDto: QueryCourseDto, @Res() res: any) {
+    const result = await this.coursesService.findAllCoursesByAdmin(queryDto);
+
+    sendResponse(res, {
+      statusCode: 200,
+      success: true,
+      message: 'Courses fetched successfully',
+      data: result?.data,
+      meta: result?.meta
+    })
+  }
+
 
   @Get('my-courses')
   @UseGuards(AuthGuard, RolesGuard)
