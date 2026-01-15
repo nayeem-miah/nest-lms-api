@@ -28,17 +28,18 @@ export class EnrollmentService {
 
 
   async enrollCourse(userId: string, courseId: string) {
-    console.log({ userId, courseId });
     const course = await this.coursesService.findOne(courseId);
+
     if (!course || !course.isPublished) {
       throw new NotFoundException('Course not available');
     }
 
-
     const alreadyEnrolled = await this.enrollmentModel.findOne({
-      userId,
-      courseId,
+      userId: new Types.ObjectId(userId),
+      courseId: new Types.ObjectId(courseId),
     });
+
+
     if (alreadyEnrolled) {
       throw new ConflictException('Already enrolled in this course');
     }
@@ -59,6 +60,7 @@ export class EnrollmentService {
       courseId: new Types.ObjectId(courseId),
     });
 
+    console.log(enrollment);
     return {
       message: 'Enrollment successful',
       enrollment,
@@ -66,10 +68,12 @@ export class EnrollmentService {
   }
 
 
-  // get enrollments courses
   async getUserEnrollments(userId: string) {
-    return this.enrollmentModel
-      .find({ userId, isActive: true })
+    return await this.enrollmentModel
+      .find({
+        userId: new Types.ObjectId(userId),
+        isActive: true,
+      })
       .populate('courseId', 'title category price')
       .sort({ createdAt: -1 });
   }

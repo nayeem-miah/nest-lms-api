@@ -7,6 +7,7 @@ import {
   Body,
   Req,
   UseGuards,
+  Res,
 } from '@nestjs/common';
 import { EnrollmentService } from './enrollment.service';
 import { AuthGuard } from 'src/auth/auth.guard';
@@ -14,6 +15,7 @@ import { RolesGuard } from 'src/auth/roles.guard';
 import { Roles } from 'src/auth/roles.decorator';
 import { UserRole } from 'src/enums/user.types';
 import { UpdateProgressDto } from './dto/update-enrollment.dto';
+import { sendResponse } from 'src/common/utils/sendResponse';
 
 
 @Controller('enrollments')
@@ -24,9 +26,8 @@ export class EnrollmentController {
   // Enroll after payment success Student only
   @Post(':courseId')
   @Roles(UserRole.STUDENT)
-  enrollCourse(@Req() req, @Param('courseId') courseId: string) {
-    console.log({ courseId });
-    return this.enrollmentService.enrollCourse(
+  async enrollCourse(@Req() req, @Param('courseId') courseId: string) {
+    return await this.enrollmentService.enrollCourse(
       req.user.sub,
       courseId,
     );
@@ -35,8 +36,15 @@ export class EnrollmentController {
   //  get my payment history
   @Get('me')
   @Roles(UserRole.STUDENT)
-  getMyEnrollments(@Req() req) {
-    return this.enrollmentService.getUserEnrollments(req.user.sub);
+  async getMyEnrollments(@Req() req, @Res() res: any) {
+    const result = await this.enrollmentService.getUserEnrollments(req.user.sub);
+
+    sendResponse(res, {
+      statusCode: 200,
+      success: true,
+      message: 'My enrollments fetched successfully',
+      data: result
+    })
   }
 
   // update progress
