@@ -10,6 +10,7 @@ import configuration from 'src/config/configuration';
 import { stripe } from 'src/common/utils/stripe';
 import { EnrollmentService } from '../enrollment/enrollment.service';
 import { QueryPaymentDto } from './dto/QueryPaymentDto';
+import emailSender from 'src/common/utils/emailSender';
 
 
 @Injectable()
@@ -105,7 +106,7 @@ export class PaymentService {
       const session = event.data.object as Stripe.Checkout.Session;
 
       const payment = await this.paymentModel.findOne({
-        transactionId: session.id,
+        transactionId: session.id
       });
 
       if (!payment) return { received: true };
@@ -125,8 +126,36 @@ export class PaymentService {
         payment.courseId.toString(),
       );
 
-      // create invoice url 
+      // create invoice url
 
+      if (payment.status === PaymentStatus.PAID) {
+        const paymentData = await this.paymentModel.findById(payment?._id);
+
+        if (!paymentData) {
+          throw new BadRequestException('Payment not found');
+        }
+
+        const user = await this.userService.findOne(paymentData.userId.toString());
+
+        if (!user) {
+          throw new BadRequestException('User not found');
+        }
+
+        const html = `
+    <h2>Payment Successful 🎉</h2>
+    <p>Hello ${user.name},</p>
+    <p>Your payment of <b>${paymentData.amount} BDT</b> was successful.</p>
+    <p>Transaction ID: ${paymentData.transactionId}</p>
+    <br/>
+    <p>Thank you for your purchase.</p>
+  `;
+
+        await emailSender(
+          'Payment Successful',
+          user.email,
+          html
+        );
+      }
     }
     return { received: true };
   }

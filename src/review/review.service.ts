@@ -10,6 +10,7 @@ import { CreateReviewDto } from './dto/create-review.dto';
 import { Review, ReviewDocument } from './schema/review.schema';
 import { Enrollment, EnrollmentDocument } from 'src/enrollment/schemas/enrollment.schema';
 import { Course } from 'src/course/schemas/course.schema';
+import emailSender from 'src/common/utils/emailSender';
 
 @Injectable()
 export class ReviewsService {
@@ -129,6 +130,7 @@ export class ReviewsService {
   //     comment,
   //   });
 
+
   //   const review = await this.reviewModel.findById(result._id);
   //   if (!review) throw new NotFoundException('Review not found');
 
@@ -146,6 +148,25 @@ export class ReviewsService {
   //   course.ratingAvg = Number(newAvg.toFixed(1));
 
   //   await course.save();
+
+  //   const user = await this.reviewModel.findOne({ _id: userId });
+  //   if (!user) throw new NotFoundException('User not found');
+
+
+  //   const html = `
+  //   <h2>New Course Review ⭐</h2>
+  //   <p>A new review has been submitted.</p>
+  //   <p><b>Course:</b> ${course.title}</p>
+  //   <p><b>Rating:</b> ${dto.rating}</p>
+  //   <p><b>Comment:</b> ${dto.comment}</p>
+  // `;
+
+  //   await emailSender(
+  //     'New Course Review Received',
+  //     user.email,
+  //     html
+  //   );
+
 
   //   return review;
 

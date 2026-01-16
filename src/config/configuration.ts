@@ -55,6 +55,13 @@ export default () => ({
         password: process.env.ADMIN_PASSWORD
     },
 
-    frontendUrl: process.env.FRONTEND_URL
+    frontendUrl: process.env.FRONTEND_URL,
+
+    nodeMiller: {
+        email_user: process.env.EMAIL_USER,
+        email_pass: process.env.EMAIL_PASS,
+        email_from: process.env.EMAIL_FROM
+
+    }
 });
 

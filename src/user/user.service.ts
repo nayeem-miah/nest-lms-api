@@ -9,6 +9,7 @@ import configuration from 'src/config/configuration';
 import { UserRole } from '../enums/user.types';
 import cloudinary from 'src/config/cloudinary.config';
 import { QueryUserDto } from './dto/QueryUserDto';
+import emailSender from 'src/common/utils/emailSender';
 @Injectable()
 export class UserService {
   constructor(@InjectModel(User.name) private userModel: Model<User>) { }
@@ -39,6 +40,25 @@ export class UserService {
       isActive: true,
       devices: [],
     });
+
+    try {
+      const html = `
+    <h2>Welcome to Our Platform 🎉</h2>
+    <p>Hello <b>${user.name}</b>,</p>
+    <p>Your account has been successfully created.</p>
+    <p>You can now login using your email.</p>
+    <br/>
+    <p>Thanks,<br/>Team</p>
+  `;
+
+      await emailSender(
+        'Welcome to Our Platform',
+        user.email,
+        html
+      );
+    } catch (error) {
+      console.error('User created but email failed:', error);
+    }
 
     return user;
   }
