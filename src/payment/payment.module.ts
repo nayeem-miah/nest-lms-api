@@ -12,9 +12,10 @@ import { PaymentService } from './payment.service';
     MongooseModule.forFeature([
       { name: Payment.name, schema: PaymentSchema },
     ]),
-    CoursesModule,
+    forwardRef(() => CoursesModule),
     UserModule,
     forwardRef(() => EnrollmentModule),
+    forwardRef(() => CoursesModule),
   ],
   controllers: [PaymentController],
   providers: [PaymentService],

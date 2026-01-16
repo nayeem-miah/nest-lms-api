@@ -12,6 +12,7 @@ import { Enrollment, EnrollmentDocument } from './schemas/enrollment.schema';
 import { CoursesService } from 'src/course/course.service';
 import { PaymentService } from 'src/payment/payment.service';
 import { PaymentStatus } from 'src/enums/paymentStatus';
+import { Course } from 'src/course/schemas/course.schema';
 
 
 @Injectable()
@@ -20,10 +21,14 @@ export class EnrollmentService {
     @InjectModel(Enrollment.name)
     private readonly enrollmentModel: Model<EnrollmentDocument>,
 
+    @InjectModel(Course.name)
+    private readonly courseModel: Model<Course>,
+
     @Inject(forwardRef(() => PaymentService))
     private readonly paymentService: PaymentService,
 
     private readonly coursesService: CoursesService,
+
   ) { }
 
 
@@ -60,7 +65,12 @@ export class EnrollmentService {
       courseId: new Types.ObjectId(courseId),
     });
 
-    console.log(enrollment);
+    await this.courseModel.findByIdAndUpdate(
+      courseId,
+      {
+        $inc: { totalEnrollments: 1 },
+      }
+    );
     return {
       message: 'Enrollment successful',
       enrollment,

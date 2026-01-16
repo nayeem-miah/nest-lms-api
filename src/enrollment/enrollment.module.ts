@@ -12,7 +12,7 @@ import { EnrollmentService } from './enrollment.service';
       { name: Enrollment.name, schema: EnrollmentSchema },
     ]),
     forwardRef(() => PaymentModule),
-    CoursesModule,
+    forwardRef(() => CoursesModule),
   ],
   controllers: [EnrollmentController],
   providers: [EnrollmentService],
