@@ -35,6 +35,10 @@ export class Course {
     ratingAvg: number;
 
     @Prop({ default: 0, min: 0 })
+    totalReviews: number;
+
+
+    @Prop({ default: 0, min: 0 })
     totalEnrollments: number;
 }
 

@@ -25,31 +25,133 @@ export class ReviewsService {
   ) { }
 
   async createReview(userId: string, dto: CreateReviewDto) {
-    const { courseId, rating, comment } = dto;
+    const session = await this.reviewModel.startSession();
+    session.startTransaction();
 
-    const enrolled = await this.enrollmentModel.findOne({
-      userId: new Types.ObjectId(userId),
-      courseId: new Types.ObjectId(courseId),
-    });
+    try {
+      const { courseId, rating, comment } = dto;
 
+      const enrolled = await this.enrollmentModel.findOne(
+        {
+          userId: new Types.ObjectId(userId),
+          courseId: new Types.ObjectId(courseId),
+        },
+        null,
+        { session }
+      );
 
-    if (!enrolled) {
-      throw new ForbiddenException('You are not enrolled in this course');
+      if (!enrolled) {
+        throw new ForbiddenException('You are not enrolled in this course');
+      }
+
+      const existing = await this.reviewModel.findOne(
+        { userId, courseId },
+        null,
+        { session }
+      );
+
+      if (existing) {
+        throw new ConflictException('You already reviewed this course');
+      }
+
+      const result = await this.reviewModel.create(
+        [
+          {
+            userId,
+            courseId,
+            rating,
+            comment,
+          },
+        ],
+        { session }
+      );
+
+      const review = await this.reviewModel.findById(result[0]._id, null, {
+        session,
+      });
+
+      if (!review) throw new NotFoundException('Review not found');
+
+      await review.save({ session });
+
+      const course = await this.courseModel.findById(review.courseId, null, {
+        session,
+      });
+
+      if (!course) throw new NotFoundException('Course not found');
+
+      const newTotalReviews = course.totalReviews + 1;
+      const newAvg =
+        (course.ratingAvg * course.totalReviews + review.rating) /
+        newTotalReviews;
+
+      course.totalReviews = newTotalReviews;
+      course.ratingAvg = Number(newAvg.toFixed(1));
+
+      await course.save({ session });
+
+      await session.commitTransaction();
+      session.endSession();
+
+      return review;
+    } catch (error) {
+      await session.abortTransaction();
+      session.endSession();
+      throw error;
     }
-
-    const existing = await this.reviewModel.findOne({ userId, courseId });
-
-    if (existing) {
-      throw new ConflictException('You already reviewed this course');
-    }
-
-    return this.reviewModel.create({
-      userId,
-      courseId,
-      rating,
-      comment,
-    });
   }
+
+  // ! not using transactions
+  // async createReview(userId: string, dto: CreateReviewDto) {
+  //   const { courseId, rating, comment } = dto;
+
+  //   const enrolled = await this.enrollmentModel.findOne({
+  //     userId: new Types.ObjectId(userId),
+  //     courseId: new Types.ObjectId(courseId),
+  //   });
+
+
+  //   if (!enrolled) {
+  //     throw new ForbiddenException('You are not enrolled in this course');
+  //   }
+
+  //   const existing = await this.reviewModel.findOne({ userId, courseId });
+
+  //   if (existing) {
+  //     throw new ConflictException('You already reviewed this course');
+  //   }
+
+
+  //   const result = await this.reviewModel.create({
+  //     userId,
+  //     courseId,
+  //     rating,
+  //     comment,
+  //   });
+
+  //   const review = await this.reviewModel.findById(result._id);
+  //   if (!review) throw new NotFoundException('Review not found');
+
+  //   await review.save();
+
+  //   const course = await this.courseModel.findById(review.courseId);
+  //   if (!course) throw new NotFoundException('Course not found');
+
+  //   const newTotalReviews = course.totalReviews + 1;
+  //   const newAvg =
+  //     (course.ratingAvg * course.totalReviews + review.rating) /
+  //     newTotalReviews;
+
+  //   course.totalReviews = newTotalReviews;
+  //   course.ratingAvg = Number(newAvg.toFixed(1));
+
+  //   await course.save();
+
+  //   return review;
+
+  // }
+
+
 
   async getReviews(courseId: string) {
     const reviews = await this.reviewModel
