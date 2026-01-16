@@ -57,6 +57,6 @@ process.on('unhandledRejection', (error) => {
 });
 
 process.on('SIGINT', () => {
-  console.log('SIGINT received, shutting down...');
+  console.log('SIGINT received, shutting down..');
   process.exit(0);
 });
