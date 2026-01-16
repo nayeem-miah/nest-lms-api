@@ -12,6 +12,7 @@ import { CoursesModule } from './course/course.module';
 import { EnrollmentModule } from './enrollment/enrollment.module';
 import { PaymentModule } from './payment/payment.module';
 import { ReviewsModule } from './review/review.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { ReviewsModule } from './review/review.module';
     EnrollmentModule,
     PaymentModule,
     ReviewsModule,
+    DashboardModule,
   ],
   controllers: [AppController],
   providers: [AppService],
