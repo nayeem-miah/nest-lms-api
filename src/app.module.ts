@@ -11,6 +11,7 @@ import configuration from './config/configuration';
 import { CoursesModule } from './course/course.module';
 import { EnrollmentModule } from './enrollment/enrollment.module';
 import { PaymentModule } from './payment/payment.module';
+import { ReviewsModule } from './review/review.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { PaymentModule } from './payment/payment.module';
     CoursesModule,
     EnrollmentModule,
     PaymentModule,
+    ReviewsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
