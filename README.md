@@ -1,101 +1,234 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# 🚀 Online Course & Subscription Management System (Backend API)
 
-stripe listen --forward-to http://localhost:5
-000/api/v1/payments/stripe/webhook
+A **scalable and production-ready backend API** built with **NestJS** for an online learning platform.  
+This system supports **authentication, course management, enrollment, payments, subscriptions, reviews, notifications, and admin analytics**.
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+🔗 **Live Backend API**  
+👉 https://nest-lms-api-fbhm.onrender.com/api/v1
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+---
 
-## Description
+## 🎯 Project Overview
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+This backend powers an online course platform where:
 
-## Project setup
+- **Students** can register, purchase courses, subscribe to plans, and track learning progress
+- **Instructors** can create and manage their own courses
+- **Admins** have full control over users, courses, payments, and analytics
 
-```bash
-$ npm install
+The architecture is **scalable, secure, and SaaS-ready**.
+
+---
+
+## 👥 User Roles
+
+| Role       | Permissions                |
+| ---------- | -------------------------- |
+| Admin      | Full system access         |
+| Instructor | Manage own courses         |
+| Student    | Purchase & consume courses |
+
+---
+
+## 🔐 Authentication & Authorization
+
+### Authentication
+
+- Email & password signup
+- Secure login with **JWT**
+- Refresh token system
+- Password hashing using **bcrypt**
+- Logout (invalidate refresh token)
+- Google OAuth (optional)
+
+### Authorization
+
+- Role-Based Access Control (RBAC)
+- Route protection using **Guards**
+- Instructor can manage only own courses
+- Admin can manage everything
+
+---
+
+## 👤 User Module
+
+### Features
+
+- User registration & login
+- View & update profile
+- Change password
+- Device-based login limit (max 3 devices)
+- Account status (active / blocked)
+
+### User Fields
+
+```ts
+id, name, email, password, role, isActive, devices[], createdAt
 ```
 
-## Compile and run the project
+---
 
-```bash
-# development
-$ npm run start
+## 📚 Course Module
 
-# watch mode
-$ npm run start:dev
+### Features
 
-# production mode
-$ npm run start:prod
+- Create / Update / Delete course
+- Publish / Unpublish course
+- Course listing with:
+  - Pagination
+  - Search
+  - Category filter
+
+- Course details view
+
+### Course Fields
+
+```ts
+(id, title, description, price, category, instructorId, isPublished);
 ```
 
-## Run tests
+---
 
-```bash
-# unit tests
-$ npm run test
+## 🎓 Enrollment Module
 
-# e2e tests
-$ npm run test:e2e
+### Features
 
-# test coverage
-$ npm run test:cov
+- Purchase course
+- Auto enrollment after successful payment
+- Prevent duplicate enrollment
+- View enrolled courses
+- Track progress (percentage-based)
+
+---
+
+## 💳 Subscription & Payment Module
+
+### Features
+
+- Monthly & yearly subscription plans
+- Stripe / SSLCommerz (design-ready)
+- Secure payment handling
+- Webhook support
+- Payment history
+- Invoice generation (PDF)
+
+---
+
+## 🧾 Review & Rating Module
+
+### Features
+
+- Students can leave reviews
+- One review per course per user
+- Admin can moderate reviews
+
+---
+
+## 🔔 Notification Module
+
+### Features
+
+- Email notifications
+- Enrollment confirmation
+- Subscription expiry reminders
+- Admin announcements
+
+---
+
+## 📊 Admin Dashboard APIs
+
+### Features
+
+- Total users, courses & revenue
+- Monthly revenue analytics
+- Most popular courses
+- Active vs inactive users
+
+---
+
+## 🧪 Security & Performance
+
+- Global validation pipe
+- Rate limiting
+- CORS & Helmet
+- Request logging
+- Global error handling
+
+---
+
+## 📂 Project Structure
+
+```
+src/
+├── auth/
+├── users/
+├── courses/
+├── enrollments/
+├── payments/
+├── subscriptions/
+├── reviews/
+├── notifications/
+├── dashboard/
+├── common/
+│ ├── guards/
+│ ├── decorators/
+│ ├── interceptors/
+│ └── filters/
+└── main.ts
 ```
 
-## Deployment
+---
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+## 🛠️ Tech Stack
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+- **NestJS**
+- **TypeScript**
+- **MongoDB + Mongoose**
+- **JWT + Passport**
+- **Stripe**
+- **Swagger API Documentation**
+
+---
+
+## 📈 Advanced Features (Optional)
+
+- CQRS Pattern
+- Event-driven architecture
+- Background jobs (BullMQ)
+- API versioning
+- Microservice-ready structure
+
+---
+
+## 🚀 Getting Started (Local Setup)
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+# Clone repository
+git clone https://github.com/nayeem-miah/nest-lms-api.git
+
+# Install dependencies
+npm install
+
+# Setup environment variables
+cp .env.example .env
+
+# Run development server
+npm run start:dev
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+---
 
-## Resources
+## 📄 API Documentation
 
-Check out a few resources that may come in handy when working with NestJS:
+Swagger available at:
+👉 `/api/docs` (when running locally)
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+---
 
-## Support
+## 🎯 Why This Project Matters
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+✅ Solves real-world backend problems
+✅ Recruiter-friendly architecture
+✅ Clean & scalable codebase
+✅ SaaS-ready design
+✅ Strong backend portfolio project
