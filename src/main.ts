@@ -46,17 +46,27 @@ async function bootstrap() {
 }
 bootstrap();
 
+// process.on('uncaughtException', (error) => {
+//   console.error('Uncaught Exception:', error);
+//   process.exit(1);
+// });
+
+// process.on('unhandledRejection', (error) => {
+//   console.error('Unhandled Rejection:', error);
+//   process.exit(1);
+// });
+
+// process.on('SIGINT', () => {
+//   console.log('SIGINT received, shutting down..');
+//   process.exit(0);
+// });
+
+
+// deploy 
 process.on('uncaughtException', (error) => {
   console.error('Uncaught Exception:', error);
-  process.exit(1);
 });
 
 process.on('unhandledRejection', (error) => {
   console.error('Unhandled Rejection:', error);
-  process.exit(1);
-});
-
-process.on('SIGINT', () => {
-  console.log('SIGINT received, shutting down..');
-  process.exit(0);
 });
