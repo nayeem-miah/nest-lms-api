@@ -88,6 +88,23 @@ export class EnrollmentService {
       .sort({ createdAt: -1 });
   }
 
+  async getSingleEnrollment(enrollmentId: string, userId: string) {
+    const enrollment = await this.enrollmentModel.findById(enrollmentId);
+    if (!enrollment) {
+      throw new NotFoundException('Enrollment not found');
+    }
+    if (enrollment.userId.toString() !== userId) {
+      throw new ForbiddenException('You can only access your own enrollment');
+    }
+
+    // get course details
+    const course = await this.coursesService.findOne(
+      enrollment.courseId.toString(),
+    );
+
+    return { enrollment, course };
+  }
+
 
   // update progress
   async updateProgress(

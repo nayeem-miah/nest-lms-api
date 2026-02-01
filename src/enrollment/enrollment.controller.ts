@@ -33,6 +33,12 @@ export class EnrollmentController {
     );
   }
 
+  @Get('me/:courseId')
+  @Roles(UserRole.STUDENT)
+  async getSingleEnrollment(@Req() req, @Param('courseId') courseId: string) {
+    return await this.enrollmentService.getSingleEnrollment(req.user.sub, courseId);
+  }
+
   //  get my payment history
   @Get('me')
   @Roles(UserRole.STUDENT)
