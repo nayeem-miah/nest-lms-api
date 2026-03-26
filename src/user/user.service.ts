@@ -1,20 +1,27 @@
-import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { User } from './schemas/user.schema';
-import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
+import { Model } from 'mongoose';
+import emailSender from 'src/common/utils/emailSender';
+import cloudinary from 'src/config/cloudinary.config';
 import configuration from 'src/config/configuration';
 import { UserRole } from '../enums/user.types';
-import cloudinary from 'src/config/cloudinary.config';
+import { CreateUserDto } from './dto/create-user.dto';
 import { QueryUserDto } from './dto/QueryUserDto';
-import emailSender from 'src/common/utils/emailSender';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { User } from './schemas/user.schema';
 @Injectable()
 export class UserService {
-  constructor(@InjectModel(User.name) private userModel: Model<User>) { }
+  constructor(@InjectModel(User.name) private userModel: Model<User>) {}
   async create(createUserDto: CreateUserDto) {
-    const exitsUser = await this.userModel.findOne({ email: createUserDto.email });
+    const exitsUser = await this.userModel.findOne({
+      email: createUserDto.email,
+    });
 
     if (exitsUser) {
       throw new BadRequestException('User already exists with this email');
@@ -30,7 +37,10 @@ export class UserService {
       throw new BadRequestException('Password is required');
     }
 
-    const hashPassword = await bcrypt.hash(createUserDto.password as string, configuration().bcrypt.saltRounds);
+    const hashPassword = await bcrypt.hash(
+      createUserDto.password as string,
+      configuration().bcrypt.saltRounds,
+    );
 
     const user = await this.userModel.create({
       name: createUserDto.name,
@@ -51,11 +61,7 @@ export class UserService {
     <p>Thanks,<br/>Team</p>
   `;
 
-      await emailSender(
-        'Welcome to Our Platform',
-        user.email,
-        html
-      );
+      await emailSender('Welcome to Our Platform', user.email, html);
     } catch (error) {
       console.error('User created but email failed:', error);
     }
@@ -64,13 +70,7 @@ export class UserService {
   }
 
   async findAll(queryDto: QueryUserDto) {
-    const {
-      search,
-      role,
-      isActive,
-      page = 1,
-      limit = 10,
-    } = queryDto;
+    const { search, role, isActive, page = 1, limit = 10 } = queryDto;
 
     const filter: any = {};
 
@@ -161,10 +161,9 @@ export class UserService {
     return user;
   }
 
-
   async remove(id: string) {
     return await this.userModel.findByIdAndDelete(id);
-  };
+  }
 
   async addDevice(userId: string, deviceId: string) {
     const user = await this.userModel.findById(userId);
@@ -197,9 +196,7 @@ export class UserService {
       throw new NotFoundException('User not found');
     }
 
-    user.devices = user.devices.filter(
-      (id) => id !== deviceId,
-    );
+    user.devices = user.devices.filter((id) => id !== deviceId);
 
     await user.save();
 
@@ -209,22 +206,25 @@ export class UserService {
     };
   }
 
-
   async seedAdmin(createUserDto: CreateUserDto) {
-
-    const exitsUser = await this.userModel.findOne({ email: createUserDto.email });
+    const exitsUser = await this.userModel.findOne({
+      email: createUserDto.email,
+    });
 
     if (exitsUser) {
       throw new BadRequestException('User already exists with this email');
     }
 
-    const hashPassword = await bcrypt.hash(createUserDto.password as string, configuration().bcrypt.saltRounds);
+    const hashPassword = await bcrypt.hash(
+      createUserDto.password as string,
+      configuration().bcrypt.saltRounds,
+    );
 
     createUserDto.password = hashPassword;
     createUserDto.role = UserRole.ADMIN;
 
     return await this.userModel.create(createUserDto);
-  };
+  }
 
   // user block and unblock
   async updateStatus(userId: string) {
@@ -236,13 +236,14 @@ export class UserService {
 
     user.isActive = !user.isActive;
 
-    const updateUser = await this.userModel.findByIdAndUpdate(userId, user, { new: true });
+    const updateUser = await this.userModel.findByIdAndUpdate(userId, user, {
+      new: true,
+    });
 
     return updateUser;
-  };
+  }
 
-
-  // update role 
+  // update role
   async updateRole(userId: string) {
     const user = await this.userModel.findById(userId);
 
@@ -252,8 +253,21 @@ export class UserService {
 
     user.role = UserRole.ADMIN;
 
-    const updateUser = await this.userModel.findByIdAndUpdate(userId, user, { new: true });
+    const updateUser = await this.userModel.findByIdAndUpdate(userId, user, {
+      new: true,
+    });
 
     return updateUser;
-  };
+  }
+
+  async removeAllDevices(userId: string) {
+    // console.log(userId, 'click from user service ');
+    return this.userModel.findByIdAndUpdate(
+      userId,
+      {
+        $set: { devices: [] },
+      },
+      { new: true },
+    );
+  }
 }

@@ -1,21 +1,24 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { CreateAuthDto } from './dto/create-auth.dto';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { UserService } from 'src/user/user.service';
-import * as bcrypt from 'bcrypt';
-import configuration from 'src/config/configuration';
 import { InjectModel } from '@nestjs/mongoose';
-import { User } from 'src/user/schemas/user.schema';
+import * as bcrypt from 'bcrypt';
 import { Model } from 'mongoose';
-
+import configuration from 'src/config/configuration';
+import { User } from 'src/user/schemas/user.schema';
+import { UserService } from 'src/user/user.service';
+import { CreateAuthDto } from './dto/create-auth.dto';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly UserService: UserService,
     private readonly jwtService: JwtService,
-    @InjectModel(User.name) private UserModule: Model<User>
-  ) { }
+    @InjectModel(User.name) private UserModule: Model<User>,
+  ) {}
 
   async login(createAuthDto: CreateAuthDto) {
     const user = await this.UserModule.findOne({ email: createAuthDto.email });
@@ -24,44 +27,44 @@ export class AuthService {
       throw new BadRequestException('Invalid credentials');
     }
 
-    const isMatch = await bcrypt.compare(createAuthDto.password, user.password as string);
+    const isMatch = await bcrypt.compare(
+      createAuthDto.password,
+      user.password as string,
+    );
 
     if (!isMatch) {
       throw new BadRequestException('Invalid credentials');
     }
 
     // device limit
-    await this.UserService.addDevice(user._id.toString(), createAuthDto.deviceId);
-
+    await this.UserService.addDevice(
+      user._id.toString(),
+      createAuthDto.deviceId,
+    );
 
     const payload = {
       sub: user._id.toString(),
       email: user.email,
       role: user.role,
-      deviceId: createAuthDto.deviceId
+      deviceId: createAuthDto.deviceId,
     };
-
 
     return {
       accessToken: await this.jwtService.signAsync(payload),
       refreshToken: await this.jwtService.signAsync(payload, {
-        secret: configuration().jwt.refreshTokenSecret
-      })
+        secret: configuration().jwt.refreshTokenSecret,
+      }),
     };
   }
 
-
   async logout(userId: string, deviceId: string) {
-
     await this.UserService.removeDevice(userId, deviceId);
     return { message: 'Logged out successfully' };
   }
 
-
   // * google login implement
   async googleLogin(googleUser: any) {
     const { email, name, profilePhoto } = googleUser;
-
 
     let user = await this.UserModule.findOne({ email });
 
@@ -69,10 +72,9 @@ export class AuthService {
       user = await this.UserModule.create({
         email,
         name,
-        profilePhoto
+        profilePhoto,
       });
     }
-
 
     // device limit
     await this.UserService.addDevice(user._id.toString(), googleUser.deviceId);
@@ -89,20 +91,17 @@ export class AuthService {
     };
   }
 
-
   async changePassword(
     userId: string,
-    { oldPassword,
-      newPassword
-    }:
-      {
-        oldPassword: string;
-        newPassword: string;
-      },
+    {
+      oldPassword,
+      newPassword,
+    }: {
+      oldPassword: string;
+      newPassword: string;
+    },
   ) {
-    const user = await this.UserModule
-      .findById(userId)
-      .select('+password');
+    const user = await this.UserModule.findById(userId).select('+password');
 
     if (!user) {
       throw new NotFoundException('User not found');
@@ -126,5 +125,10 @@ export class AuthService {
     const result = await user.save();
 
     return result;
+  }
+
+  async logoutAll(userId: string) {
+    await this.UserService.removeAllDevices(userId);
+    return { message: 'Logged out from all devices' };
   }
 }
