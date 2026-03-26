@@ -37,6 +37,10 @@ export class AuthService {
     }
 
     // device limit
+    if (createAuthDto.logoutFromAllDevices) {
+      await this.UserService.removeAllDevices(user._id.toString());
+    }
+
     await this.UserService.addDevice(
       user._id.toString(),
       createAuthDto.deviceId,

@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
+import { IsBoolean, IsEmail, IsNotEmpty, IsOptional, IsString, MinLength } from 'class-validator';
 
 export class CreateAuthDto {
     @IsEmail()
@@ -10,6 +10,10 @@ export class CreateAuthDto {
     @IsString()
     @IsNotEmpty()
     deviceId: string;
+
+    @IsOptional()
+    @IsBoolean()
+    logoutFromAllDevices?: boolean;
 }
 
 
