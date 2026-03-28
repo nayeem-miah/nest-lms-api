@@ -51,8 +51,7 @@ export class UserService {
       devices: [],
     });
 
-    try {
-      const html = `
+    const html = `
     <h2>Welcome to Our Platform 🎉</h2>
     <p>Hello <b>${user.name}</b>,</p>
     <p>Your account has been successfully created.</p>
@@ -61,10 +60,10 @@ export class UserService {
     <p>Thanks,<br/>Team</p>
   `;
 
-      await emailSender('Welcome to Our Platform', user.email, html);
-    } catch (error) {
+    // Send welcome email in background (don't block the registration response)
+    emailSender('Welcome to Our Platform', user.email, html).catch((error) => {
       console.error('User created but email failed:', error);
-    }
+    });
 
     return user;
   }
