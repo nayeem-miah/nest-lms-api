@@ -87,7 +87,7 @@ export class AuthController {
     const tokens = await this.authService.googleLogin(req.user);
 
     res.redirect(
-      `http://localhost:3000/login-success?token=${tokens.accessToken}`,
+      `https://learening-management-system.vercel.app/login-success?token=${tokens.accessToken}`,
     );
   }
 
